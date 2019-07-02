@@ -1,0 +1,12 @@
+[package]
+name = "hackernews"
+version = "0.0.1"
+authors = ["Christian Ruigrok <christian@ruigrok.info>"]
+edition = "2018"
+
+[dependencies]
+reqwest = "0.9.18"
+serde = { version="1.0.94", features= ["derive"]}
+crossbeam-utils = "0.6.5"
+ansi_term = "0.11.0"
+stoppable_thread = "0.2.1"
