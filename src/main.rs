@@ -1,31 +1,70 @@
-use std::io::{self, Write};
-use std::{thread, time};
-use stoppable_thread;
+use ncurses::*;
+
+use keys::is_exit;
+use pages::commentpage::*;
+use pages::homepage::*;
+use pages::Page;
+
+use std::thread;
+
 
 mod fetch;
-
-mod models;
+mod keys;
+mod pages;
 mod print;
-fn main() {
-    let loop_handle = stoppable_thread::spawn(|stopped| {
-        let mut stdout = io::stdout();
-        let mut cycle = ["⠂", "-", "–", "—", "–", "-"].iter().cycle();
+mod models;
+mod spinner;
 
-        while !stopped.get() {
-            stdout.write(cycle.next().unwrap().as_bytes()).unwrap();
-            stdout.flush().unwrap();
-            thread::sleep(time::Duration::from_millis(100));
-            stdout.write("\x08".as_bytes()).unwrap();
+
+fn render(page: Box<&mut impl Page>) -> bool {
+    let spinner_handle = spinner::create_spinner_thread();
+    page.fetch_data();
+    spinner_handle.stop().join().unwrap();
+    clear();
+    page.render();
+    refresh();
+
+    loop {
+        let key = getch();
+        if is_exit(key) {
+            return true;
         }
-    });
+
+        page.input(key);
+        clear();
+        page.render();
+        refresh();
+    }
+}
+
+fn main() {
+    setlocale(LcCategory::all, "en_US.UTF-8");
+    initscr();
+    raw();
+    noecho();
+    keypad(stdscr(), true);
+    curs_set(CURSOR_VISIBILITY::CURSOR_INVISIBLE);
 
     thread::spawn(move || {
-        thread::sleep(time::Duration::from_millis(2000));
+        fn on_close() {
+            endwin();
+        }
 
-        let stories = fetch::get_stories("1");
-        loop_handle.stop().join().unwrap();
-        let (first_stories, _) = stories.split_at(10);
-        print::print_stories(first_stories.to_vec(), -1);
+        fn open_comments(id: i32) {
+            loop {
+                if render(Box::new(&mut CommentPage::new(id, Box::new(on_close)))) {
+                    break;
+                }
+            }
+        }
+
+        loop {
+            if render(Box::new(&mut HomePage::new(Box::new(open_comments)))) {
+                break;
+            }
+        }
+
+        endwin();
     })
     .join()
     .unwrap();

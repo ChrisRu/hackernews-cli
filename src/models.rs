@@ -1,15 +1,6 @@
 use serde::Deserialize;
 
 #[derive(Clone, Deserialize)]
-pub struct User {
-    pub about: Option<String>,
-    pub created_time: i32,
-    pub created: String,
-    pub id: String,
-    pub karma: i32,
-}
-
-#[derive(Clone, Deserialize)]
 pub struct Story {
     pub id: i32,
     pub title: String,

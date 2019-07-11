@@ -10,3 +10,5 @@ serde = { version="1.0.94", features= ["derive"]}
 crossbeam-utils = "0.6.5"
 ansi_term = "0.11.0"
 stoppable_thread = "0.2.1"
+html2text = "0.1.6"
+ncurses = "5.99.0"
