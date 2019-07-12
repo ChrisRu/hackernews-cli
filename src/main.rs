@@ -10,16 +10,17 @@ use std::thread;
 
 mod fetch;
 mod keys;
-mod pages;
 mod print;
 mod models;
+mod pages;
 mod spinner;
 
 
-fn render(page: Box<&mut impl Page>) -> bool {
+fn render(page: Box<&mut impl Page>) {
     let spinner_handle = spinner::create_spinner_thread();
     page.fetch_data();
     spinner_handle.stop().join().unwrap();
+
     clear();
     page.render();
     refresh();
@@ -27,10 +28,10 @@ fn render(page: Box<&mut impl Page>) -> bool {
     loop {
         let key = getch();
         if is_exit(key) {
-            return true;
+            break;
         }
-
         page.input(key);
+
         clear();
         page.render();
         refresh();
@@ -51,18 +52,10 @@ fn main() {
         }
 
         fn open_comments(id: i32) {
-            loop {
-                if render(Box::new(&mut CommentPage::new(id, Box::new(on_close)))) {
-                    break;
-                }
-            }
+            render(Box::new(&mut CommentPage::new(id, Box::new(on_close))));
         }
 
-        loop {
-            if render(Box::new(&mut HomePage::new(Box::new(open_comments)))) {
-                break;
-            }
-        }
+        render(Box::new(&mut HomePage::new(Box::new(open_comments))));
 
         endwin();
     })
