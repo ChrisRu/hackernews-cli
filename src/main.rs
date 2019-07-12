@@ -8,12 +8,11 @@ use pages::Page;
 
 mod fetch;
 mod keys;
-
 mod models;
-
 mod pages;
 mod print;
 mod spinner;
+
 fn render(page: Box<&mut impl Page>) {
     let spinner_handle = spinner::create_spinner_thread();
     page.fetch_data();
