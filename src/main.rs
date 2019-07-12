@@ -1,17 +1,19 @@
 
 use keys::is_exit;
 use ncurses::*;
-use pages::homepage::*;
-use pages::commentpage::*;
+
+use pages::commentpage::CommentPage;
+use pages::homepage::HomePage;
 use pages::Page;
 
 mod fetch;
 mod keys;
-mod print;
-mod models;
-mod spinner;
-mod pages;
 
+mod models;
+
+mod pages;
+mod print;
+mod spinner;
 fn render(page: Box<&mut impl Page>) {
     let spinner_handle = spinner::create_spinner_thread();
     page.fetch_data();
@@ -34,12 +36,8 @@ fn render(page: Box<&mut impl Page>) {
     }
 }
 
-fn on_close() {
-    endwin();
-}
-
 fn open_comments(id: i32) {
-    render(Box::new(&mut CommentPage::new(id, Box::new(on_close))));
+    render(Box::new(&mut CommentPage::new(id)));
 }
 
 fn open_homepage() {
