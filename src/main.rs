@@ -1,20 +1,16 @@
-use ncurses::*;
 
 use keys::is_exit;
-use pages::commentpage::*;
+use ncurses::*;
 use pages::homepage::*;
+use pages::commentpage::*;
 use pages::Page;
-
-use std::thread;
-
 
 mod fetch;
 mod keys;
 mod print;
 mod models;
-mod pages;
 mod spinner;
-
+mod pages;
 
 fn render(page: Box<&mut impl Page>) {
     let spinner_handle = spinner::create_spinner_thread();
@@ -38,6 +34,18 @@ fn render(page: Box<&mut impl Page>) {
     }
 }
 
+fn on_close() {
+    endwin();
+}
+
+fn open_comments(id: i32) {
+    render(Box::new(&mut CommentPage::new(id, Box::new(on_close))));
+}
+
+fn open_homepage() {
+    render(Box::new(&mut HomePage::new(Box::new(open_comments))));
+}
+
 fn main() {
     setlocale(LcCategory::all, "en_US.UTF-8");
     initscr();
@@ -46,19 +54,7 @@ fn main() {
     keypad(stdscr(), true);
     curs_set(CURSOR_VISIBILITY::CURSOR_INVISIBLE);
 
-    thread::spawn(move || {
-        fn on_close() {
-            endwin();
-        }
+    open_homepage();
 
-        fn open_comments(id: i32) {
-            render(Box::new(&mut CommentPage::new(id, Box::new(on_close))));
-        }
-
-        render(Box::new(&mut HomePage::new(Box::new(open_comments))));
-
-        endwin();
-    })
-    .join()
-    .unwrap();
+    endwin();
 }

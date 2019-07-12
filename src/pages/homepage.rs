@@ -43,6 +43,7 @@ impl Page for HomePage {
                     self.current_story = self.current_story - 1;
                 }
             }
+            // 10: enter
             10 => {
                 let id = self.stories[self.current_story].id;
                 (self.on_open_story)(id);

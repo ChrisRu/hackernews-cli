@@ -1,6 +1,7 @@
 
 pub mod commentpage;
 pub mod homepage;
+
 pub trait Page {
     fn render(&self);
 

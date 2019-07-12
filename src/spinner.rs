@@ -1,6 +1,5 @@
-use ncurses::{clear,addstr,refresh};
-
-use std::thread::{sleep};
+use ncurses::{addstr, clear, refresh};
+use std::thread::sleep;
 use std::time::*;
 use stoppable_thread::*;
 
